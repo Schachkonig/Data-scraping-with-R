@@ -1,0 +1,6 @@
+"0","```r
+df_daily_stats <- df_daily_stats %>%
+  mutate( RollingSum7Days = rollapplyr(SumTotalPrice, width = 7, FUN = sum, fill = NA),
+    RollingSum30Days = rollapplyr(SumTotalPrice, width = 30, FUN = sum, fill = NA),) %>%
+  arrange(Date)
+```"

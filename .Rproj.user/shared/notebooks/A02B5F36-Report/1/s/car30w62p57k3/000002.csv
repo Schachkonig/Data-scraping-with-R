@@ -1,0 +1,10 @@
+"0","```r
+df_selected <- df_selected %>% 
+  mutate(InvoiceTotal = Quantity * UnitPrice)
+
+df_selected <- df_selected %>% 
+  group_by(CustomerID, InvoiceNo, InvoiceDate) %>% 
+  summarise(InvoiceTotal = sum(InvoiceTotal))
+
+df_selected
+```"

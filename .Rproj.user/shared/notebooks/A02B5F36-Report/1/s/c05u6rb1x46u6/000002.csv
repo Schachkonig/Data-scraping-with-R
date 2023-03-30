@@ -1,0 +1,6 @@
+"0","```r
+df_selected <- df %>% 
+  select(CustomerID, InvoiceNo, InvoiceDate, Quantity, UnitPrice)
+
+df_selected$InvoiceDate <- as.POSIXct(df_selected$InvoiceDate, format=\"%m/%d/%Y\")
+```"

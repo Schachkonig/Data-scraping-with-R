@@ -1,0 +1,5 @@
+"0","```r
+df_selected <- df_selected %>% 
+  group_by(CustomerID) %>% 
+  mutate(CumulativeSum = cumsum(InvoiceTotal), InvoiceNumberByUser = row_number(InvoiceDate))
+```"

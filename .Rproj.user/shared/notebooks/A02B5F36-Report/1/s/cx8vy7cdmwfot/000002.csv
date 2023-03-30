@@ -1,0 +1,7 @@
+"0","```r
+outliers <- boxplot.stats(df$Quantity)$out
+df <- df[!df$Quantity %in% outliers, ]
+
+outliers <- boxplot.stats(df$UnitPrice)$out
+df <- df[!df$UnitPrice %in% outliers, ]
+```"

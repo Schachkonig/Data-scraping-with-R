@@ -1,0 +1,196 @@
+---
+title: "Networks"
+author: "Volodia Motyka"
+date: "2023-03-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+## Introduction
+
+This document is about scrapping and preparing data for these visualizations: Chord diagram, Network diagram and Dendrogram.
+
+The visualizations in one way or another describe data of networks.
+
+Here I'll use data, scrapped from Google Scholar.
+
+The process begins with getting the data from website: names of all research on the page and their co-authors of the most cited research. Subsequently, I prepare data for certain kind of diagram. While preparing data for Chord and Network diagram is pretty much the same, for dendrogram it's a little bit another story.
+
+So let's start!
+
+Getting all needed libraries.
+
+```{r libraries, echo=TRUE}
+library(dplyr)
+library(tidyr)
+library(rvest)  # for web-scraping
+library(sjmisc) # for str_contains function
+# the following packages are great for visualization
+library(tidygraph)
+library(igraph)
+library(ggraph)
+library(networkD3) 
+library(collapsibleTree) # for interactive dendrogram
+```
+
+## Get and process the data
+
+As I mentioned before, I'm taking the data from Google Scholar.\
+To do so, I'm using *rvest* package.
+
+```{r scrapping and first preparations}
+link <- "https://scholar.google.com.ua/citations?hl=uk&user=5HX--AYAAAAJ"
+page <- read_html(link)
+
+researches <- page %>% html_nodes(".gsc_a_at") %>% html_text()
+coauthors_row <- page %>% html_nodes(".gsc_a_at+ .gs_gray") %>% html_text()
+
+coauthors_unlisted <- as.data.frame(unlist(strsplit(coauthors_row,", ")))
+
+authors <- distinct(coauthors_unlisted)
+authors <- authors %>%  select(Surname=`unlist(strsplit(coauthors_row, ", "))`) %>% filter(Surname != "...")
+```
+
+## Chord and Network diagrams
+
+### Data preparation
+
+For both, Chord and Network diagrams I will need an adjacency matrix.
+
+```{r Adjacency_matrix}
+AdjacencyMat <- matrix(0,nrow = nrow(authors), ncol =  nrow(authors))
+
+rownames(AdjacencyMat) <- authors$Surname
+colnames(AdjacencyMat) <- authors$Surname
+
+
+for(x in authors$Surname){
+  for(y in coauthors_row ){
+    if (str_contains(y,x)){
+      for(xx in authors$Surname){
+        if (str_contains(y,xx)){
+          AdjacencyMat[x,xx] <- AdjacencyMat[x,xx] + 1 
+        }
+      }
+    }
+  }
+}
+
+for(x in authors$Surname){
+  AdjacencyMat[x,x] <- 0
+}
+```
+
+Now I need to have columns "from", "to" and "value" in order to make wanted diagrams.
+
+```{r from_to_value}
+edge_from<-c()
+edge_to<-c()
+edge_value<-c()
+
+for (i in 1:length(authors$Surname)){
+  for (j in 1:length(authors$Surname)){
+    if (AdjacencyMat[authors$Surname[i],authors$Surname[j]]!=0)
+    {
+      edge_from <- append(edge_from,authors$Surname[i])
+      edge_to <- append(edge_to,authors$Surname[j])
+      edge_value <- append(edge_value,AdjacencyMat[authors$Surname[i],authors$Surname[j]])
+    }
+  }
+}
+
+edge_value <- factor(edge_value)
+```
+
+### Chord diagram
+
+Last preparations...
+
+```{r}
+nodes.df <- data.frame(Surname = authors$Surname)
+edges.df <- data.frame(from = edge_from, to = edge_to, value = edge_value)
+
+graph.df <- tbl_graph(nodes = nodes.df, edges = edges.df, directed = F, node_key = "name")
+```
+
+And the visualization:
+
+```{r chord_diagram}
+ggraph(graph.df, layout = "linear", circular=T) +
+  geom_edge_arc(aes(width=value, color=value), alpha=0.7) +
+  geom_node_label(aes(label=Surname, color=Surname), show.legend = F)
+```
+
+Now we can see the link of coauthors on twenty most cited science works with Robert Langer. You can choose any author, but be sure they are in Google Scholar, in other case you'll need to change scrapping and processing part of code.\
+As you can notice, the diagram is a little bit overloaded. Let's try another diagram.
+
+### Network diagram
+
+For building network diagram, I'll use the same vectors *edge_from* and *edge_to*
+
+```{r network_diagram}
+df <- data_frame(from = edge_from ,to = edge_to )
+
+simpleNetwork(df, height="100px", width="100px")
+
+```
+
+We can improve visualization, by adjusting parameters. The following code not only returns us better-looked diagram, but also allows to zoom, which makes using the diagram even more comfortable.
+
+```{r out.width='100%'}
+simpleNetwork(df, height="100px", width="100px",        
+              Source = 1,                 # column number of source
+              Target = 2,                 # column number of target
+              linkDistance = 10,          # distance between node. Increase this value to have more space between nodes
+              fontSize = 14,               # size of the node names
+              fontFamily = "serif",       # font og node names
+              linkColour = "#666",        # colour of edges, MUST be a common colour for the whole graph
+              nodeColour = "#69b3a2",     # colour of nodes, MUST be a common colour for the whole graph
+              opacity = 0.9,              # opacity of nodes. 0=transparent. 1=no transparency
+              zoom = T                    # zooming
+              )  
+```
+
+Network diagram gives us another point of view on authors connections.
+
+## Dendrogram
+
+The interactive dendrogram will show
+
+### Data preparation
+
+For dendrogram we need another format of data.
+
+```{r}
+edge_from<-c()
+edge_to<-c()
+
+for (i in 1:length(coauthors_row)){
+  for (j in 1:length(authors$Surname)){
+    if (str_contains(coauthors_row[i],authors$Surname[j])){
+      edge_from <-append(edge_from,researches[i])
+      edge_to <- append(edge_to,authors$Surname[j])
+    }
+  }
+}
+
+edges <- data.frame(from = edge_from,to = edge_to)
+```
+
+### Dendrogram
+
+And building the dendrogram
+
+```{r}
+collapsibleTree(edges, c("from","to"), root = "Researches")
+```
+
+Now you have an interactive diagrams, the root node is "Researches", which includes all the research, next level is research's names and the last level of node is the coauthors of the corresponding research. All is completely interactive and can be zoomed.
+
+## Conclusions
+
+I took data from web, prepared it and used it for different kinds of visualization like Chord diagram, Network diagram and Dendrogram. The data described 20 most cited science works and their authors, visualizations, in their turn, showed different prospectives of connections between authors. \
+The point was to demonstrate scrapping data and building awesome non-interactive and interactive diagrams in R.

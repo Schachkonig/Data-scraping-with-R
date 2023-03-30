@@ -1,0 +1,7 @@
+"0","```r
+df_invoice <- df_selected %>% 
+  select(CustomerID, InvoiceNo, InvoiceDate, InvoiceNumberByUser, InvoiceTotal, PreviousInvoiceNo, CumulativeSum) %>% 
+  arrange(CustomerID, InvoiceDate)
+
+head(df_invoice,15)
+```"

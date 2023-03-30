@@ -1,0 +1,5 @@
+"0","```r
+df_daily_stats <- df_daily_stats %>% 
+  select(\"Date\",\"SumTotalPrice\",\"RollingSum7Days\",\"RollingSum30Days\",\"TwoPlusItemsPercentage\",\"Transactions\",\"Refunds\",\"RefundRateFromPayments\",\"RefundRateFromTotalPrice\")
+df_daily_stats
+```"

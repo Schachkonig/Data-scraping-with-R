@@ -1,0 +1,9 @@
+"0","```r
+head(df)
+
+str(df)
+
+colnames(df)
+
+skim_without_charts(df)
+```"

@@ -1,0 +1,13 @@
+"0","```r
+df_daily_stats <- df %>%
+  mutate(Date = as.POSIXct(InvoiceDate, format=\"%m/%d/%Y\")) %>%
+  group_by(Date) %>%
+  summarise(
+    SumTotalPrice = sum(Quantity * UnitPrice),
+    TwoPlusItemsPercentage = mean(Quantity >= 2) * 100,
+    Transactions = n_distinct(InvoiceNo),
+    Refunds = sum(Quantity < 0),
+    RefundRateFromPayments = mean(Quantity < 0) * 100,
+    RefundRateFromTotalPrice = sum(Quantity < 0) / sum(SumTotalPrice) * 100
+  ) 
+```"

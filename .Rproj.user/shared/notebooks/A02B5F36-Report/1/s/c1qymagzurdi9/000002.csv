@@ -1,0 +1,7 @@
+"0","```r
+df_selected <- df_selected %>% 
+  arrange(CustomerID, InvoiceDate) %>% 
+  group_by(CustomerID) %>% 
+  mutate(PreviousInvoiceNo = lag(InvoiceNo))
+df_selected
+```"
