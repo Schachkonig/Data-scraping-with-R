@@ -1,4 +1,6 @@
 # Data-Scraping-R
+
+Check out R markdown notebook [here](https://data-scraping-with-r.pages.dev/Networks)
  
 Data scraping, advanced visualizations and other things with R
 
