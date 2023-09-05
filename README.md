@@ -1,4 +1,4 @@
-# Data-Scraping-R
+# Data-Scraping-with-R
 
 Check out R markdown notebook [here](https://data-scraping-with-r.pages.dev/Networks)
  
