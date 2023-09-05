@@ -2,7 +2,9 @@
 title: "Networks"
 author: "Volodia Motyka"
 date: "2023-03-30"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -129,7 +131,7 @@ As you can notice, the diagram is a little bit overloaded. Let's try another dia
 
 ### Network diagram
 
-For building network diagram, I'll use the same vectors *edge_from* and *edge_to*
+For building interactive network diagram, I'll use the same vectors *edge_from* and *edge_to* and *simpleNetwork* function
 
 ```{r network_diagram}
 df <- data_frame(from = edge_from ,to = edge_to )
@@ -158,7 +160,7 @@ Network diagram gives us another point of view on authors connections.
 
 ## Dendrogram
 
-The interactive dendrogram will show
+The interactive dendrogram will show the authors of every research we want.
 
 ### Data preparation
 
@@ -182,15 +184,15 @@ edges <- data.frame(from = edge_from,to = edge_to)
 
 ### Dendrogram
 
-And building the dendrogram
+And building the interactive dendrogram
 
 ```{r}
 collapsibleTree(edges, c("from","to"), root = "Researches")
 ```
 
-Now you have an interactive diagrams, the root node is "Researches", which includes all the research, next level is research's names and the last level of node is the coauthors of the corresponding research. All is completely interactive and can be zoomed.
+Now you have an interactive diagram, the root node is "Researches", which includes all the research, next level is research's names and the last level of node is the coauthors of the corresponding research. All is completely interactive and can be zoomed.
 
 ## Conclusions
 
-I took data from web, prepared it and used it for different kinds of visualization like Chord diagram, Network diagram and Dendrogram. The data described 20 most cited science works and their authors, visualizations, in their turn, showed different prospectives of connections between authors. \
+I took data from web, prepared it and used it for different kinds of visualization like Chord diagram, Network diagram and Dendrogram. The data described 20 most cited science works and their authors, visualizations, in their turn, showed different prospectives of connections between authors.\
 The point was to demonstrate scrapping data and building awesome non-interactive and interactive diagrams in R.
